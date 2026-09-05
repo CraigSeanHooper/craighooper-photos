@@ -1,7 +1,6 @@
 media:
   input: assets/photos
   output: /assets/photos
-  extensions: [jpg, jpeg, png, webp]
 
 content:
   - name: photos
