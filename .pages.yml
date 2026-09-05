@@ -8,9 +8,7 @@ content:
     type: collection
     path: content/photos
     format: json
-    filename:
-      template: "{primary}.json"
-      field: create
+    filename: "{primary}.json"
     view:
       primary: title
       fields: [title, year, order]
