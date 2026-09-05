@@ -1,0 +1,38 @@
+media:
+  input: assets/photos
+  output: /assets/photos
+  extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: photos
+    label: Photos
+    type: collection
+    path: content/photos
+    filename:
+      template: "{primary}.json"
+      field: create
+    view:
+      primary: title
+      fields: [title, year, order]
+      sort: [order, title, year]
+    fields:
+      - name: title
+        label: Title
+        type: string
+      - name: image
+        label: Photo
+        type: image
+      - name: alt
+        label: Alt text
+        type: text
+        description: What's in the frame, for screen readers. Not shown on the page.
+      - name: caption
+        label: Caption
+        type: text
+      - name: year
+        label: Year
+        type: string
+      - name: order
+        label: Order
+        type: number
+        description: Lower numbers appear first in the grid.
