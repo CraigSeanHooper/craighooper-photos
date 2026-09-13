@@ -10,6 +10,8 @@ const path = require("path");
 
 const CONTENT_DIR = path.join(__dirname, "content", "photos");
 const OUT_FILE = path.join(__dirname, "photos.json");
+const PAGE_FILE = path.join(__dirname, "content", "page.json");
+const INDEX_FILE = path.join(__dirname, "index.html");
 
 // Reads width and height straight out of a JPEG or PNG header.
 function imageSize(file) {
@@ -36,6 +38,37 @@ function imageSize(file) {
   }
 
   throw new Error(`Could not read dimensions from ${file}`);
+}
+
+// Drops the editable heading and intro into index.html between their markers.
+// Rewriting the same markers each build keeps this safe to run repeatedly.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function buildPageText() {
+  if (!fs.existsSync(PAGE_FILE)) {
+    console.log("No content/page.json — leaving the heading and intro as they are.");
+    return;
+  }
+
+  const page = JSON.parse(fs.readFileSync(PAGE_FILE, "utf8"));
+  let html = fs.readFileSync(INDEX_FILE, "utf8");
+
+  [["heading", page.heading], ["intro", page.intro]].forEach(function (pair) {
+    const name = pair[0];
+    const value = pair[1];
+    if (value === undefined || value === null) return;
+    const pattern = new RegExp("(<!--" + name + "-->)[\\s\\S]*?(<!--/" + name + "-->)");
+    if (!pattern.test(html)) throw new Error("index.html is missing the " + name + " markers.");
+    html = html.replace(pattern, "$1" + escapeHtml(value) + "$2");
+  });
+
+  fs.writeFileSync(INDEX_FILE, html);
+  console.log("Updated the heading and intro from content/page.json.");
 }
 
 function build() {
@@ -78,3 +111,4 @@ function build() {
 }
 
 build();
+buildPageText();
