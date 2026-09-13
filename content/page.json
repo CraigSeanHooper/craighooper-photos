@@ -1,4 +1,4 @@
 {
   "heading": "Photos",
-  "intro": "A static site, built from plain markup and CSS with Claude. Photos and text live as files in a repository, edited through a CMS, and published to a CDN."
+  "intro": "A static site, built from plain markup and CSS with Claude. Photos and text live in a GitHib repo, edited through Pages CMS, and published to a CDN."
 }
