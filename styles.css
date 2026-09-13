@@ -154,6 +154,7 @@ html {
 
 body {
   margin: 0;
+  position: relative;
   background: var(--surface-page);
   color: var(--text-primary);
   font-family: var(--font-family-body), system-ui, sans-serif;
@@ -373,7 +374,7 @@ a {
    never fight over one element. Matches craighooper.xyz. */
 
 .avatar-wrap {
-  position: fixed;
+  position: absolute;
   top: var(--space-100);
   left: var(--space-100);
   width: 56px;
