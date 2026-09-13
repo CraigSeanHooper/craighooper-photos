@@ -276,8 +276,13 @@ a {
 
 .tile {
   display: flex;
+}
+
+.tile__link {
+  display: flex;
   flex-direction: column;
   gap: var(--space-200);
+  width: 100%;
 }
 
 .tile--portrait {

@@ -37,7 +37,7 @@
   // Netlify resizes on request, so one uploaded file serves every size.
   function src(photo, width) {
     return "/.netlify/images?url=" + encodeURIComponent(photo.image) +
-           "&w=" + width + "&fm=webp&fit=cover";
+           "&w=" + width + "&fm=webp";
   }
 
   function tile(photo) {
@@ -47,6 +47,7 @@
     item.className = "tile tile--" + photo.orientation;
 
     var link = document.createElement("a");
+    link.className = "tile__link";
     link.href = "/photos/" + photo.slug + "/";
 
     var frame = document.createElement("div");
