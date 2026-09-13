@@ -10,6 +10,12 @@
 </head>
 <body>
 
+<div class="avatar-wrap">
+  <a class="avatar-btn" href="https://craighooper.xyz" aria-label="Craig Hooper" data-cuelume-hover="sparkle">
+    <img src="assets/avatar.png" alt="" width="48" height="48">
+  </a>
+</div>
+
 <main class="page">
 
   <section class="intro">
@@ -113,6 +119,12 @@
       grid.innerHTML = '<li class="body-sm secondary">Photos could not be loaded.</li>';
     });
 })();
+</script>
+
+<!-- Interaction sounds. Version-pinned; cuelume is pre-1.0. -->
+<script type="module">
+  import { bind } from "https://esm.sh/cuelume@0.1.2";
+  bind();
 </script>
 
 </body>
