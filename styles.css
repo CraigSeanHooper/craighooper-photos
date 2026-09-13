@@ -1,0 +1,369 @@
+/* ---------------------------------------------------------------
+   photos.craighooper.xyz
+   Structure mirrors Foundations: primitives -> semantic -> classes.
+   Class names match the Figma text style names.
+   --------------------------------------------------------------- */
+
+@font-face {
+  font-family: "FT System";
+  src: url("assets/fonts/FTSystem-BlankSemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Parabole";
+  src: url("assets/fonts/Parabole-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Primitives ------------------------------------------------ */
+
+:root {
+  --scale-base-0: 0px;
+  --scale-base-2: 2px;
+  --scale-base-4: 4px;
+  --scale-base-8: 8px;
+  --scale-base-12: 12px;
+  --scale-base-16: 16px;
+  --scale-base-24: 24px;
+  --scale-base-32: 32px;
+  --scale-base-40: 40px;
+  --scale-base-48: 48px;
+  --scale-base-64: 64px;
+  --scale-base-80: 80px;
+  --scale-base-96: 96px;
+
+  --scale-font-size-12: 12px;
+  --scale-font-size-14: 14px;
+  --scale-font-size-16: 16px;
+  --scale-font-size-24: 24px;
+  --scale-font-size-32: 32px;
+
+  --scale-line-height-18: 18px;
+  --scale-line-height-20: 20px;
+  --scale-line-height-22: 22px;
+  --scale-line-height-26: 26px;
+  --scale-line-height-34: 34px;
+
+  --scale-letter-spacing-0: 0px;
+  --scale-letter-spacing-minus-1: -1px;
+
+  --font-family-ft-system: "FT System";
+  --font-family-parabole: "Parabole";
+
+  --font-weight-regular: 400;
+  --font-weight-blank-semibold: 600;
+}
+
+/* --- Semantic -------------------------------------------------- */
+
+:root {
+  --space-0: var(--scale-base-0);
+  --space-25: var(--scale-base-2);
+  --space-50: var(--scale-base-4);
+  --space-100: var(--scale-base-8);
+  --space-200: var(--scale-base-12);
+  --space-300: var(--scale-base-16);
+  --space-500: var(--scale-base-24);
+  --space-600: var(--scale-base-32);
+  --space-700: var(--scale-base-40);
+  --space-800: var(--scale-base-48);
+  --space-900: var(--scale-base-64);
+  --space-1000: var(--scale-base-80);
+  --space-1100: var(--scale-base-96);
+
+  --surface-page: #ffffff;
+  --surface-raised: #f2f2f2;
+  --surface-accent: #fffbc6;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4d4d4d;
+
+  --radius-sm: var(--scale-base-8);
+  --radius-md: var(--scale-base-12);
+
+  --font-family-heading: var(--font-family-ft-system);
+  --font-family-body: var(--font-family-parabole);
+
+  --font-style-heading: var(--font-weight-blank-semibold);
+  --font-style-display: var(--font-weight-blank-semibold);
+  --font-style-body: var(--font-weight-regular);
+
+  --font-size-12: var(--scale-font-size-12);
+  --font-size-14: var(--scale-font-size-14);
+  --font-size-16: var(--scale-font-size-16);
+  --font-size-24: var(--scale-font-size-24);
+  --font-size-32: var(--scale-font-size-32);
+
+  --line-height-18: var(--scale-line-height-18);
+  --line-height-20: var(--scale-line-height-20);
+  --line-height-22: var(--scale-line-height-22);
+  --line-height-26: var(--scale-line-height-26);
+  --line-height-34: var(--scale-line-height-34);
+
+  --letter-spacing-display: var(--scale-letter-spacing-minus-1);
+  --letter-spacing-body: var(--scale-letter-spacing-0);
+
+  /* Layout, from the desktop artboard */
+  --page-margin: var(--space-1100);
+  --page-top: var(--space-900);
+  --intro-gap: var(--space-200);
+  --section-gap: var(--space-900);
+  --grid-col-gap: var(--space-1100);
+  --grid-row-gap: var(--space-1000);
+  --grid-btn-gap: var(--space-800);
+  --btn-pad-y: var(--space-300);
+  --btn-pad-x: var(--space-600);
+  --btn-radius: var(--radius-md);
+  --tile-width-portrait: 270px;
+  --tile-width-landscape: 370px;
+}
+
+@media (max-width: 820px) {
+  :root {
+    --page-margin: var(--space-500);
+    --page-top: var(--space-700);
+    --intro-gap: var(--space-100);
+    --section-gap: var(--space-600);
+    --grid-row-gap: var(--space-600);
+    --grid-btn-gap: var(--space-600);
+    --btn-pad-y: var(--space-200);
+    --btn-pad-x: var(--space-500);
+    --btn-radius: var(--radius-sm);
+  }
+}
+
+/* --- Reset ----------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-family-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Text styles ----------------------------------------------- */
+/* Class names match the Figma text style names. */
+
+.h1 {
+  font-family: var(--font-family-heading), system-ui, sans-serif;
+  font-weight: var(--font-style-display);
+  font-size: var(--font-size-32);
+  line-height: var(--line-height-34);
+  letter-spacing: var(--letter-spacing-display);
+  color: var(--text-primary);
+}
+
+.body-md {
+  font-family: var(--font-family-body), system-ui, sans-serif;
+  font-weight: var(--font-style-body);
+  font-size: var(--font-size-16);
+  line-height: var(--line-height-22);
+  letter-spacing: var(--letter-spacing-body);
+}
+
+.body-sm {
+  font-family: var(--font-family-body), system-ui, sans-serif;
+  font-weight: var(--font-style-body);
+  font-size: var(--font-size-14);
+  line-height: var(--line-height-20);
+  letter-spacing: var(--letter-spacing-body);
+}
+
+.body-xs {
+  font-family: var(--font-family-body), system-ui, sans-serif;
+  font-weight: var(--font-style-body);
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-18);
+  letter-spacing: var(--letter-spacing-body);
+}
+
+.secondary {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 820px) {
+  .h1 {
+    font-size: var(--font-size-24);
+    line-height: var(--line-height-26);
+  }
+
+  .body-md {
+    font-size: var(--font-size-14);
+    line-height: var(--line-height-20);
+  }
+
+  .body-sm {
+    font-size: var(--font-size-12);
+    line-height: var(--line-height-18);
+  }
+}
+
+/* --- Page ------------------------------------------------------ */
+
+.page {
+  padding: var(--page-top) var(--page-margin);
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  align-items: flex-start;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--intro-gap);
+  max-width: var(--tile-width-landscape);
+}
+
+.grid-and-button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-btn-gap);
+  align-items: center;
+}
+
+/* --- Grid ------------------------------------------------------ */
+
+.grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  column-gap: var(--grid-col-gap);
+  row-gap: var(--grid-row-gap);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-200);
+}
+
+.tile--portrait {
+  width: var(--tile-width-portrait);
+}
+
+.tile--landscape {
+  width: var(--tile-width-landscape);
+}
+
+.tile__image {
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+.tile--portrait .tile__image {
+  aspect-ratio: 3 / 4;
+}
+
+.tile--landscape .tile__image {
+  aspect-ratio: 4 / 3;
+}
+
+.tile__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tile__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-100);
+}
+
+.tile__tags {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-50);
+  row-gap: var(--space-50);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-50) var(--space-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+}
+
+/* --- Load more ------------------------------------------------- */
+
+.load-more {
+  border: 0;
+  cursor: pointer;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--btn-radius);
+  background: var(--surface-accent);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.load-more[hidden] {
+  display: none;
+}
+
+/* --- Mobile grid ----------------------------------------------- */
+
+@media (max-width: 820px) {
+  .grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tile--portrait,
+  .tile--landscape {
+    width: 100%;
+  }
+}
+
+/* --- Focus ----------------------------------------------------- */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}

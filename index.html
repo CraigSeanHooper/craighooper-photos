@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photos — Craig Hooper</title>
+<meta name="description" content="A personal photo gallery by Craig Hooper.">
+<link rel="preconnect" href="https://photos.craighooper.xyz">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="intro">
+    <h1 class="h1">Photos</h1>
+    <p class="body-sm secondary">A static site, built from plain markup and CSS with Claude. Photos and text live as files in a repository, edited through a CMS, and published to a CDN.</p>
+  </section>
+
+  <section class="grid-and-button">
+    <ul class="grid" id="grid"></ul>
+    <button class="load-more body-md" id="load-more" type="button" hidden>Load more</button>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  // How many photos appear before "Load more".
+  var BATCH = 8;
+
+  var grid = document.getElementById("grid");
+  var button = document.getElementById("load-more");
+  var photos = [];
+  var shown = 0;
+
+  // Netlify resizes on request, so one uploaded file serves every size.
+  function src(photo, width) {
+    return "/.netlify/images?url=" + encodeURIComponent(photo.image) +
+           "&w=" + width + "&fm=webp&fit=cover";
+  }
+
+  function tile(photo) {
+    var displayWidth = photo.orientation === "landscape" ? 370 : 270;
+
+    var item = document.createElement("li");
+    item.className = "tile tile--" + photo.orientation;
+
+    var link = document.createElement("a");
+    link.href = "/photos/" + photo.slug + "/";
+
+    var frame = document.createElement("div");
+    frame.className = "tile__image";
+
+    var img = document.createElement("img");
+    img.src = src(photo, displayWidth);
+    img.srcset = src(photo, displayWidth) + " 1x, " + src(photo, displayWidth * 2) + " 2x";
+    img.alt = photo.alt;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.width = displayWidth;
+    img.height = Math.round(displayWidth * (photo.height / photo.width));
+
+    frame.appendChild(img);
+    link.appendChild(frame);
+
+    var meta = document.createElement("div");
+    meta.className = "tile__meta";
+
+    if (photo.tags && photo.tags.length) {
+      var tags = document.createElement("div");
+      tags.className = "tile__tags";
+      photo.tags.slice(0, 5).forEach(function (name) {
+        var tag = document.createElement("span");
+        tag.className = "tag body-xs";
+        tag.textContent = name;
+        tags.appendChild(tag);
+      });
+      meta.appendChild(tags);
+    }
+
+    if (photo.caption) {
+      var caption = document.createElement("p");
+      caption.className = "body-xs secondary";
+      caption.textContent = photo.caption;
+      meta.appendChild(caption);
+    }
+
+    link.appendChild(meta);
+    item.appendChild(link);
+    return item;
+  }
+
+  function render() {
+    var next = photos.slice(shown, shown + BATCH);
+    var batch = document.createDocumentFragment();
+    next.forEach(function (photo) { batch.appendChild(tile(photo)); });
+    grid.appendChild(batch);
+    shown += next.length;
+    button.hidden = shown >= photos.length;
+  }
+
+  button.addEventListener("click", render);
+
+  fetch("photos.json")
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      photos = data;
+      render();
+    })
+    .catch(function () {
+      grid.innerHTML = '<li class="body-sm secondary">Photos could not be loaded.</li>';
+    });
+})();
+</script>
+
+</body>
+</html>
