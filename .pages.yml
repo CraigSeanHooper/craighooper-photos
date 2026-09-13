@@ -3,6 +3,18 @@ media:
   output: /assets/photos
 
 content:
+  - name: page
+    label: Page text
+    type: file
+    path: content/page.json
+    fields:
+      - name: heading
+        label: Heading
+        type: string
+      - name: intro
+        label: Intro paragraph
+        type: text
+
   - name: photos
     label: Photos
     type: collection
