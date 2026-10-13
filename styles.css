@@ -13,6 +13,14 @@
 }
 
 @font-face {
+  font-family: "KMR Melange Grotesk";
+  src: url("assets/fonts/KMRMelangeGrotesk-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Parabole";
   src: url("assets/fonts/Parabole-Regular.woff2") format("woff2");
   font-weight: 400;
@@ -56,7 +64,7 @@
   --scale-line-height-34: 34px;
 
   --scale-letter-spacing-0: 0px;
-  --scale-letter-spacing-minus-1: -1px;
+  --scale-letter-spacing-minus-1: -0.5px;   /* same value as craighooper.xyz */
 
   --colour-neutral-0: #ffffff;
   --colour-neutral-5: #f2f2f2;
@@ -73,6 +81,7 @@
 
   --font-family-ft-system: "FT System";
   --font-family-parabole: "Parabole";
+  --font-family-melange: "KMR Melange Grotesk";
 
   --font-weight-regular: 400;
   --font-weight-blank-semibold: 600;
@@ -118,7 +127,7 @@
 
   --surface-avatar: var(--surface-page);
 
-  --font-family-heading: var(--font-family-ft-system);
+  --font-family-heading: var(--font-family-melange);   /* matches craighooper.xyz */
   --font-family-body: var(--font-family-parabole);
 
   --font-style-heading: var(--font-weight-blank-semibold);
@@ -237,7 +246,8 @@ a {
 /* Class names match the Figma text style names. */
 
 .h1 {
-  font-family: var(--font-family-heading), system-ui, sans-serif;
+  font-feature-settings: "salt" 1;
+  font-family: var(--font-family-heading), "Helvetica Neue", Arial, sans-serif;
   font-weight: var(--font-style-display);
   font-size: var(--font-size-32);
   line-height: var(--line-height-34);
