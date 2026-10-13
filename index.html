@@ -50,6 +50,7 @@
   var button = document.getElementById("load-more");
   var canvas = document.getElementById("canvas");
   var plane = document.getElementById("plane");
+  var intro = document.querySelector(".intro");
   var photos = [];
 
   // Netlify resizes on request, so one uploaded file serves every size.
@@ -372,9 +373,10 @@
       root.classList.add("is-canvas");
       canvas.hidden = false;
       block = layoutBlock();
-      // First photo starts in the top left, at the page margins.
+      // First photo starts just below the intro, in line with it.
+      var introBox = intro.getBoundingClientRect();
       cam.x = -token("--page-margin");
-      cam.y = -token("--page-top");
+      cam.y = -(introBox.bottom + token("--section-gap"));
       draw();
     } else {
       root.classList.remove("is-canvas");

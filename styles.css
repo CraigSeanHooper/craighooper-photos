@@ -374,7 +374,7 @@ a {
 
 /* --- Desktop canvas -------------------------------------------- */
 /* The page stops scrolling; the photos sit on a plane you drag around.
-   The intro floats above it, centred on the screen. */
+   The intro floats above it, in the same spot it holds on the grid page. */
 
 .canvas[hidden] {
   display: none;
@@ -392,17 +392,9 @@ a {
 
 .is-canvas .intro {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: var(--page-top);
+  left: var(--page-margin);
   z-index: 2;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  align-items: center;
-  pointer-events: none;   /* dragging works straight through the text */
-}
-
-.is-canvas .intro a {
-  pointer-events: auto;
 }
 
 .canvas {
