@@ -1,0 +1,6 @@
+# Lets the collage experiment on craighooper.xyz/lab/collage/ read the
+# photo list and image files, so it can turn them into collages.
+/photos.json
+  Access-Control-Allow-Origin: https://craighooper.xyz
+/assets/photos/*
+  Access-Control-Allow-Origin: https://craighooper.xyz
