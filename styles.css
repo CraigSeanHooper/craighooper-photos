@@ -513,7 +513,9 @@ a {
 }
 
 @media (max-width: 820px) {
+  /* Scrolls away with the page on mobile, like the avatar. */
   .btn-action {
+    position: absolute;
     padding: var(--space-100) var(--space-300);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-12);
