@@ -69,10 +69,10 @@
     var item = document.createElement("li");
     item.className = "tile tile--" + photo.orientation;
 
-    var link = document.createElement("a");
+    // Not a link for now: the photo pages aren't built yet. To turn links
+    // back on, make this an "a" and set link.href = "/photos/" + photo.slug + "/".
+    var link = document.createElement("div");
     link.className = "tile__link";
-    link.href = "/photos/" + photo.slug + "/";
-    link.draggable = false;
 
     var frame = document.createElement("div");
     frame.className = "tile__image";
