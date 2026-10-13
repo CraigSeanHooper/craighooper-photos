@@ -109,14 +109,9 @@
       meta.appendChild(tags);
     }
 
-    if (photo.caption) {
-      var caption = document.createElement("p");
-      caption.className = "body-sm secondary";
-      caption.textContent = photo.caption;
-      meta.appendChild(caption);
-    }
+    // Captions aren't shown on tiles; they'll appear on the photo's own page.
 
-    link.appendChild(meta);
+    if (meta.childNodes.length) link.appendChild(meta);
     item.appendChild(link);
     return item;
   }
@@ -162,7 +157,6 @@
       var imageH = photo.orientation === "landscape" ? w * 3 / 4 : w * 4 / 3;
       var metaH = 0;
       if (photo.tags && photo.tags.length) metaH += token("--line-height-18") + 2 * token("--space-50") + token("--space-100");
-      if (photo.caption) metaH += token("--line-height-20");
       return { photo: photo, index: index, w: w, h: imageH + (metaH ? metaGap + metaH : 0) };
     });
 
@@ -197,9 +191,9 @@
       r.period = r.used;            // distance from one repeat of the row to the next
       var x = 0;
       r.items.forEach(function (t) {
-        // Bottom-aligned within the row so captions line up.
+        // Centred vertically within the row.
         t.x = x;
-        t.y = r.height - t.h;
+        t.y = (r.height - t.h) / 2;
         x += t.w + colGap;
       });
       y += r.height + rowGap;
