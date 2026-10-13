@@ -138,11 +138,12 @@
   button.addEventListener("click", renderColumn);
 
   /* --- Desktop: the drag canvas -------------------------------- */
-  // Every photo is laid out once into a roughly square block. The block
-  // repeats in every direction, and only tiles near the screen are drawn.
+  // Photos are split into a few rows. Each row repeats endlessly sideways
+  // on its own, so no row ever ends short, and the stack of rows repeats
+  // up and down. Only tiles near the screen are drawn.
 
-  var block = null;        // { items, width, height } — one copy of the layout
-  var live = {};           // tiles currently on screen, keyed by copy + photo
+  var block = null;        // { rows, height } — one copy of the stack of rows
+  var live = {};           // tiles currently on screen, keyed by position + photo
   var cam = { x: 0, y: 0 };
   var velocity = { x: 0, y: 0 };
   var frameRequested = false;
@@ -152,54 +153,55 @@
     var rowGap = token("--grid-row-gap");
     var metaGap = token("--space-200");
 
-    var sized = photos.map(function (photo) {
+    var sized = photos.map(function (photo, index) {
       var w = tileWidth(photo);
       var imageH = photo.orientation === "landscape" ? w * 3 / 4 : w * 4 / 3;
       var metaH = 0;
       if (photo.tags && photo.tags.length) metaH += token("--line-height-18") + 2 * token("--space-50") + token("--space-100");
       if (photo.caption) metaH += token("--line-height-20");
-      return { photo: photo, w: w, h: imageH + (metaH ? metaGap + metaH : 0) };
+      return { photo: photo, index: index, w: w, h: imageH + (metaH ? metaGap + metaH : 0) };
     });
 
-    // Aim for a square block: total tile area, square-rooted.
-    var area = sized.reduce(function (sum, t) {
-      return sum + (t.w + colGap) * (t.h + rowGap);
-    }, 0);
-    var width = Math.max(Math.sqrt(area), 370);
+    // Enough rows to keep the whole set roughly square.
+    var totalWidth = 0, totalHeight = 0;
+    sized.forEach(function (t) { totalWidth += t.w + colGap; totalHeight += t.h + rowGap; });
+    var avgHeight = totalHeight / sized.length;
+    var rowCount = Math.max(1, Math.min(sized.length, Math.round(Math.sqrt(totalWidth / avgHeight))));
 
-    // Pack left to right; start a new row when the next tile won't fit.
+    // Split in order, newest first, into rows of about equal length:
+    // each break goes wherever the running length lands closest to its share.
     var rows = [];
     var row = null;
+    var running = 0;
     sized.forEach(function (t) {
-      if (!row || row.used + (row.items.length ? colGap : 0) + t.w > width) {
+      var share = totalWidth * rows.length / rowCount;
+      var breakHere = !row || (rows.length < rowCount &&
+        Math.abs(running - share) <= Math.abs(running + t.w + colGap - share));
+      if (breakHere) {
         row = { items: [], used: 0, height: 0 };
         rows.push(row);
       }
-      row.used += (row.items.length ? colGap : 0) + t.w;
       row.items.push(t);
+      row.used += t.w + colGap;
       row.height = Math.max(row.height, t.h);
+      running += t.w + colGap;
     });
 
-    // Block width is the widest row, so short rows leave space at their end.
-    var blockWidth = rows.reduce(function (max, r) { return Math.max(max, r.used); }, 0);
-
-    var items = [];
     var y = 0;
     rows.forEach(function (r) {
+      r.y = y;
+      r.period = r.used;            // distance from one repeat of the row to the next
       var x = 0;
-      r.items.forEach(function (t, i) {
+      r.items.forEach(function (t) {
         // Bottom-aligned within the row so captions line up.
-        items.push({ photo: t.photo, x: x, y: y + r.height - t.h, w: t.w, h: t.h, index: items.length });
+        t.x = x;
+        t.y = r.height - t.h;
         x += t.w + colGap;
       });
       y += r.height + rowGap;
     });
 
-    return {
-      items: items,
-      width: blockWidth + colGap,   // distance from one copy to the next
-      height: y                     // already includes the trailing row gap
-    };
+    return { rows: rows, height: y };
   }
 
   function draw() {
@@ -212,27 +214,30 @@
     var left = cam.x - margin, right = cam.x + vw + margin;
     var top = cam.y - margin, bottom = cam.y + vh + margin;
 
-    var firstCol = Math.floor(left / block.width), lastCol = Math.floor(right / block.width);
-    var firstRow = Math.floor(top / block.height), lastRow = Math.floor(bottom / block.height);
+    var firstStack = Math.floor(top / block.height), lastStack = Math.floor(bottom / block.height);
 
     var wanted = {};
-    for (var by = firstRow; by <= lastRow; by++) {
-      for (var bx = firstCol; bx <= lastCol; bx++) {
-        var ox = bx * block.width, oy = by * block.height;
-        block.items.forEach(function (item) {
-          var x = ox + item.x, y = oy + item.y;
-          if (x + item.w < left || x > right || y + item.h < top || y > bottom) return;
-          var key = bx + "," + by + "," + item.index;
-          wanted[key] = true;
-          if (!live[key]) {
-            var el = tile(item.photo);
-            el.style.left = x + "px";
-            el.style.top = y + "px";
-            plane.appendChild(el);
-            live[key] = el;
-          }
-        });
-      }
+    for (var by = firstStack; by <= lastStack; by++) {
+      block.rows.forEach(function (r, ri) {
+        var rowTop = by * block.height + r.y;
+        if (rowTop + r.height < top || rowTop > bottom) return;
+        var firstRepeat = Math.floor(left / r.period), lastRepeat = Math.floor(right / r.period);
+        for (var bx = firstRepeat; bx <= lastRepeat; bx++) {
+          r.items.forEach(function (item) {
+            var x = bx * r.period + item.x, y = rowTop + item.y;
+            if (x + item.w < left || x > right) return;
+            var key = by + "," + ri + "," + bx + "," + item.index;
+            wanted[key] = true;
+            if (!live[key]) {
+              var el = tile(item.photo);
+              el.style.left = x + "px";
+              el.style.top = y + "px";
+              plane.appendChild(el);
+              live[key] = el;
+            }
+          });
+        }
+      });
     }
 
     Object.keys(live).forEach(function (key) {
