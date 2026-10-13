@@ -52,6 +52,15 @@
   --scale-letter-spacing-0: 0px;
   --scale-letter-spacing-minus-1: -1px;
 
+  --colour-neutral-0: #ffffff;
+  --colour-neutral-5: #f2f2f2;
+  --colour-neutral-10: #f5f5f5;
+  --colour-neutral-20: #cccccc;
+  --colour-neutral-70: #4d4d4d;
+  --colour-neutral-90: #1a1a1a;
+  --colour-neutral-95: #0d0d0d;
+  --colour-accent-yellow: #fffbc6;
+
   --font-family-ft-system: "FT System";
   --font-family-parabole: "Parabole";
 
@@ -76,12 +85,13 @@
   --space-1000: var(--scale-base-80);
   --space-1100: var(--scale-base-96);
 
-  --surface-page: #ffffff;
-  --surface-raised: #f2f2f2;
-  --surface-accent: #fffbc6;
+  --surface-page: var(--colour-neutral-0);
+  --surface-raised: var(--colour-neutral-5);
+  --surface-accent: var(--colour-accent-yellow);
 
-  --text-primary: #1a1a1a;
-  --text-secondary: #4d4d4d;
+  --text-primary: var(--colour-neutral-90);
+  --text-secondary: var(--colour-neutral-70);
+  --text-on-accent: var(--colour-neutral-90);
 
   --radius-sm: var(--scale-base-8);
   --radius-md: var(--scale-base-12);
@@ -126,6 +136,22 @@
   --tile-width-landscape: 370px;
 }
 
+/* Dark mode follows the computer's setting, same as craighooper.xyz. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-page: var(--colour-neutral-90);
+    --surface-raised: var(--colour-neutral-95);
+    --surface-avatar: var(--colour-neutral-90);
+    --text-primary: var(--colour-neutral-10);
+    --text-secondary: var(--colour-neutral-20);
+  }
+
+  /* the avatar is black line art on a transparent background; flip it to white */
+  .avatar-btn img {
+    filter: invert(1);
+  }
+}
+
 @media (max-width: 820px) {
   :root {
     --page-margin: var(--space-500);
@@ -150,6 +176,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  color-scheme: light dark;
+  background: var(--surface-page);
 }
 
 body {
@@ -347,7 +375,7 @@ a {
   padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: var(--btn-radius);
   background: var(--surface-accent);
-  color: var(--text-primary);
+  color: var(--text-on-accent);
 }
 
 .load-more[hidden] {
