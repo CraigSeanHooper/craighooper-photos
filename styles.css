@@ -372,6 +372,70 @@ a {
   }
 }
 
+/* --- Desktop canvas -------------------------------------------- */
+/* The page stops scrolling; the photos sit on a plane you drag around.
+   The intro floats above it in the same spot it holds on the grid page. */
+
+.canvas[hidden] {
+  display: none;
+}
+
+.is-canvas,
+.is-canvas body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.is-canvas .grid-and-button {
+  display: none;
+}
+
+.is-canvas .intro {
+  position: fixed;
+  top: calc(var(--page-top) - var(--space-300));
+  left: calc(var(--page-margin) - var(--space-300));
+  z-index: 2;
+  padding: var(--space-300);
+  border-radius: var(--radius-md);
+  background: var(--surface-page);
+}
+
+.canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--surface-page);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.canvas.is-dragging .tile__link {
+  cursor: grabbing;
+}
+
+.canvas__plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.canvas .tile {
+  position: absolute;
+}
+
+/* While dragging, photos don't react to the pointer passing over them. */
+.canvas.is-dragging .tile__link:hover .tile__image img {
+  transform: none;
+}
+
 /* --- Avatar ---------------------------------------------------- */
 /* Wrapper holds the position, the button holds the spin, so the two
    never fight over one element. Matches craighooper.xyz. */

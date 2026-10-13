@@ -30,15 +30,28 @@
 
 </main>
 
+<!-- Desktop only: the photos as a canvas you drag in any direction. -->
+<div class="canvas" id="canvas" hidden>
+  <ul class="canvas__plane" id="plane"></ul>
+</div>
+
 <script>
 (function () {
-  // How many photos appear before "Load more".
+  // Mobile: how many photos appear before "Load more".
   var BATCH = 8;
 
+  // Desktop shows a canvas you drag around; mobile keeps the scrolling column.
+  // Matches the 820px breakpoint in styles.css.
+  var desktop = window.matchMedia("(min-width: 821px)");
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  var root = document.documentElement;
   var grid = document.getElementById("grid");
   var button = document.getElementById("load-more");
+  var canvas = document.getElementById("canvas");
+  var plane = document.getElementById("plane");
+  var intro = document.querySelector(".intro");
   var photos = [];
-  var shown = 0;
 
   // Netlify resizes on request, so one uploaded file serves every size.
   function src(photo, width) {
@@ -46,8 +59,12 @@
            "&w=" + width + "&fm=webp";
   }
 
+  function tileWidth(photo) {
+    return photo.orientation === "landscape" ? 370 : 270;
+  }
+
   function tile(photo) {
-    var displayWidth = photo.orientation === "landscape" ? 370 : 270;
+    var displayWidth = tileWidth(photo);
 
     var item = document.createElement("li");
     item.className = "tile tile--" + photo.orientation;
@@ -55,6 +72,7 @@
     var link = document.createElement("a");
     link.className = "tile__link";
     link.href = "/photos/" + photo.slug + "/";
+    link.draggable = false;
 
     var frame = document.createElement("div");
     frame.className = "tile__image";
@@ -65,6 +83,7 @@
     img.alt = photo.alt;
     img.loading = "lazy";
     img.decoding = "async";
+    img.draggable = false;
     img.width = displayWidth;
     img.height = Math.round(displayWidth * (photo.height / photo.width));
 
@@ -98,7 +117,16 @@
     return item;
   }
 
-  function render() {
+  // Reads a spacing token from styles.css as a number of pixels.
+  function token(name) {
+    return parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+  }
+
+  /* --- Mobile: the column with "Load more" -------------------- */
+
+  var shown = 0;
+
+  function renderColumn() {
     var next = photos.slice(shown, shown + BATCH);
     var batch = document.createDocumentFragment();
     next.forEach(function (photo) { batch.appendChild(tile(photo)); });
@@ -107,13 +135,258 @@
     button.hidden = shown >= photos.length;
   }
 
-  button.addEventListener("click", render);
+  button.addEventListener("click", renderColumn);
+
+  /* --- Desktop: the drag canvas -------------------------------- */
+  // Every photo is laid out once into a roughly square block. The block
+  // repeats in every direction, and only tiles near the screen are drawn.
+
+  var block = null;        // { items, width, height } — one copy of the layout
+  var live = {};           // tiles currently on screen, keyed by copy + photo
+  var cam = { x: 0, y: 0 };
+  var velocity = { x: 0, y: 0 };
+  var frameRequested = false;
+
+  function layoutBlock() {
+    var colGap = token("--grid-col-gap");
+    var rowGap = token("--grid-row-gap");
+    var metaGap = token("--space-200");
+
+    var sized = photos.map(function (photo) {
+      var w = tileWidth(photo);
+      var imageH = photo.orientation === "landscape" ? w * 3 / 4 : w * 4 / 3;
+      var metaH = 0;
+      if (photo.tags && photo.tags.length) metaH += token("--line-height-18") + 2 * token("--space-50") + token("--space-100");
+      if (photo.caption) metaH += token("--line-height-20");
+      return { photo: photo, w: w, h: imageH + (metaH ? metaGap + metaH : 0) };
+    });
+
+    // Aim for a square block: total tile area, square-rooted.
+    var area = sized.reduce(function (sum, t) {
+      return sum + (t.w + colGap) * (t.h + rowGap);
+    }, 0);
+    var width = Math.max(Math.sqrt(area), 370);
+
+    // Pack left to right; start a new row when the next tile won't fit.
+    var rows = [];
+    var row = null;
+    sized.forEach(function (t) {
+      if (!row || row.used + (row.items.length ? colGap : 0) + t.w > width) {
+        row = { items: [], used: 0, height: 0 };
+        rows.push(row);
+      }
+      row.used += (row.items.length ? colGap : 0) + t.w;
+      row.items.push(t);
+      row.height = Math.max(row.height, t.h);
+    });
+
+    // Block width is the widest row, so short rows leave space at their end.
+    var blockWidth = rows.reduce(function (max, r) { return Math.max(max, r.used); }, 0);
+
+    var items = [];
+    var y = 0;
+    rows.forEach(function (r) {
+      var x = 0;
+      r.items.forEach(function (t, i) {
+        // Bottom-aligned within the row so captions line up.
+        items.push({ photo: t.photo, x: x, y: y + r.height - t.h, w: t.w, h: t.h, index: items.length });
+        x += t.w + colGap;
+      });
+      y += r.height + rowGap;
+    });
+
+    return {
+      items: items,
+      width: blockWidth + colGap,   // distance from one copy to the next
+      height: y                     // already includes the trailing row gap
+    };
+  }
+
+  function draw() {
+    frameRequested = false;
+    plane.style.transform = "translate3d(" + (-cam.x) + "px," + (-cam.y) + "px,0)";
+
+    var vw = canvas.clientWidth;
+    var vh = canvas.clientHeight;
+    var margin = 400;
+    var left = cam.x - margin, right = cam.x + vw + margin;
+    var top = cam.y - margin, bottom = cam.y + vh + margin;
+
+    var firstCol = Math.floor(left / block.width), lastCol = Math.floor(right / block.width);
+    var firstRow = Math.floor(top / block.height), lastRow = Math.floor(bottom / block.height);
+
+    var wanted = {};
+    for (var by = firstRow; by <= lastRow; by++) {
+      for (var bx = firstCol; bx <= lastCol; bx++) {
+        var ox = bx * block.width, oy = by * block.height;
+        block.items.forEach(function (item) {
+          var x = ox + item.x, y = oy + item.y;
+          if (x + item.w < left || x > right || y + item.h < top || y > bottom) return;
+          var key = bx + "," + by + "," + item.index;
+          wanted[key] = true;
+          if (!live[key]) {
+            var el = tile(item.photo);
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+            plane.appendChild(el);
+            live[key] = el;
+          }
+        });
+      }
+    }
+
+    Object.keys(live).forEach(function (key) {
+      if (!wanted[key]) {
+        live[key].remove();
+        delete live[key];
+      }
+    });
+  }
+
+  function requestDraw() {
+    if (!frameRequested) {
+      frameRequested = true;
+      requestAnimationFrame(draw);
+    }
+  }
+
+  function moveBy(dx, dy) {
+    cam.x += dx;
+    cam.y += dy;
+    requestDraw();
+  }
+
+  // Dragging. A press that moves more than a few pixels is a drag, and the
+  // click that follows it is swallowed so it doesn't open a photo.
+  var press = null;
+  var dragged = false;
+
+  canvas.addEventListener("pointerdown", function (e) {
+    if (e.button !== 0) return;
+    press = { x: e.clientX, y: e.clientY, lastX: e.clientX, lastY: e.clientY, lastT: e.timeStamp };
+    dragged = false;
+    velocity.x = velocity.y = 0;
+  });
+
+  window.addEventListener("pointermove", function (e) {
+    if (!press) return;
+    if (!dragged && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) {
+      dragged = true;
+      canvas.classList.add("is-dragging");
+    }
+    if (!dragged) return;
+    var dx = e.clientX - press.lastX, dy = e.clientY - press.lastY;
+    var dt = Math.max(e.timeStamp - press.lastT, 1);
+    velocity.x = -dx / dt;
+    velocity.y = -dy / dt;
+    press.lastX = e.clientX;
+    press.lastY = e.clientY;
+    press.lastT = e.timeStamp;
+    moveBy(-dx, -dy);
+  });
+
+  window.addEventListener("pointerup", function (e) {
+    if (!press) return;
+    var idle = e.timeStamp - press.lastT;
+    press = null;
+    canvas.classList.remove("is-dragging");
+    // Let go while moving and the canvas glides to a stop.
+    if (dragged && idle < 80 && !reducedMotion.matches) glide();
+  });
+
+  canvas.addEventListener("click", function (e) {
+    if (dragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragged = false;
+    }
+  }, true);
+
+  function glide() {
+    var last = performance.now();
+    function step(now) {
+      if (press) return;
+      var dt = Math.min(now - last, 32);
+      last = now;
+      moveBy(velocity.x * dt, velocity.y * dt);
+      var friction = Math.pow(0.995, dt);
+      velocity.x *= friction;
+      velocity.y *= friction;
+      if (Math.abs(velocity.x) + Math.abs(velocity.y) > 0.02) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Trackpad and mouse wheel pan the canvas too.
+  canvas.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var scale = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
+    var dx = e.deltaX * scale, dy = e.deltaY * scale;
+    if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+    moveBy(dx, dy);
+  }, { passive: false });
+
+  // Arrow keys pan for anyone not using a pointer.
+  window.addEventListener("keydown", function (e) {
+    if (!root.classList.contains("is-canvas")) return;
+    var step = e.shiftKey ? 600 : 160;
+    var moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    if (!moves[e.key]) return;
+    e.preventDefault();
+    moveBy(moves[e.key][0], moves[e.key][1]);
+  });
+
+  // Tabbing to a tile near the edge brings it fully into view.
+  canvas.addEventListener("focusin", function (e) {
+    var item = e.target.closest(".tile");
+    if (!item) return;
+    // The browser may have scrolled the canvas to reach the tile; undo that.
+    canvas.scrollTop = canvas.scrollLeft = 0;
+    var r = item.getBoundingClientRect();
+    var pad = token("--page-margin");
+    var dx = 0, dy = 0;
+    if (r.left < pad) dx = r.left - pad;
+    else if (r.right > canvas.clientWidth - pad) dx = r.right - canvas.clientWidth + pad;
+    if (r.top < pad) dy = r.top - pad;
+    else if (r.bottom > canvas.clientHeight - pad) dy = r.bottom - canvas.clientHeight + pad;
+    if (dx || dy) moveBy(dx, dy);
+  });
+
+  window.addEventListener("resize", function () {
+    if (root.classList.contains("is-canvas")) requestDraw();
+  });
+
+  /* --- Switching between the two ------------------------------ */
+
+  function start() {
+    grid.innerHTML = "";
+    plane.innerHTML = "";
+    live = {};
+    shown = 0;
+
+    if (desktop.matches && photos.length) {
+      root.classList.add("is-canvas");
+      canvas.hidden = false;
+      block = layoutBlock();
+      // First photo starts just below the intro, in line with it.
+      var introBox = intro.getBoundingClientRect();
+      cam.x = -token("--page-margin");
+      cam.y = -(introBox.bottom + token("--section-gap"));
+      draw();
+    } else {
+      root.classList.remove("is-canvas");
+      canvas.hidden = true;
+      renderColumn();
+    }
+  }
+
+  desktop.addEventListener("change", start);
 
   fetch("photos.json")
     .then(function (response) { return response.json(); })
     .then(function (data) {
       photos = data;
-      render();
+      start();
     })
     .catch(function () {
       grid.innerHTML = '<li class="body-sm secondary">Photos could not be loaded.</li>';
