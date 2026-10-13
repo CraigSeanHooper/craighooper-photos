@@ -374,7 +374,7 @@ a {
 
 /* --- Desktop canvas -------------------------------------------- */
 /* The page stops scrolling; the photos sit on a plane you drag around.
-   The intro floats above it in the same spot it holds on the grid page. */
+   The intro floats above it, in the same spot it holds on the grid page. */
 
 .canvas[hidden] {
   display: none;
@@ -392,12 +392,9 @@ a {
 
 .is-canvas .intro {
   position: fixed;
-  top: calc(var(--page-top) - var(--space-300));
-  left: calc(var(--page-margin) - var(--space-300));
+  top: var(--page-top);
+  left: var(--page-margin);
   z-index: 2;
-  padding: var(--space-300);
-  border-radius: var(--radius-md);
-  background: var(--surface-page);
 }
 
 .canvas {
