@@ -1,4 +1,4 @@
 {
-  "heading": "Photos. Because I can now.",
+  "heading": "Photos 2023—",
   "intro": "A static site, built from plain markup and CSS with Claude. Photos and text live in a Git repo and publish through Netlify. New photos are resized, described and added by Claude, with captions edited in Pages CMS."
 }
