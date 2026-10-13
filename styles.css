@@ -37,6 +37,11 @@
   --scale-base-64: 64px;
   --scale-base-80: 80px;
   --scale-base-96: 96px;
+  --scale-base-128: 128px;
+  --scale-base-144: 144px;
+  --scale-base-192: 192px;
+  --scale-base-320: 320px;
+  --scale-base-496: 496px;
 
   --scale-font-size-12: 12px;
   --scale-font-size-14: 14px;
@@ -90,6 +95,11 @@
   --space-900: var(--scale-base-64);
   --space-1000: var(--scale-base-80);
   --space-1100: var(--scale-base-96);
+  --space-1200: var(--scale-base-128);
+  --space-1300: var(--scale-base-144);
+  --space-1400: var(--scale-base-192);
+  --space-1500: var(--scale-base-320);
+  --space-1600: var(--scale-base-496);
 
   --surface-page: var(--colour-neutral-0);
   --surface-raised: var(--colour-neutral-5);
@@ -135,8 +145,8 @@
   --page-top: var(--space-1100);
   --intro-gap: var(--space-200);
   --section-gap: var(--space-900);
-  --grid-col-gap: var(--space-1100);
-  --grid-row-gap: var(--space-1000);
+  --grid-col-gap: var(--space-1200);
+  --grid-row-gap: var(--space-1200);
   --grid-btn-gap: var(--space-800);
   --btn-pad-y: var(--space-300);
   --btn-pad-x: var(--space-600);
