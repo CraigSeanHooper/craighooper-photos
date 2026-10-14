@@ -99,7 +99,10 @@ function build() {
         year: record.year || "",
         order: typeof record.order === "number" ? record.order : 9999,
         tags: Array.isArray(record.tags) ? record.tags : [],
-        orientation: width > height ? "landscape" : "portrait",
+        // Within 5% of square gets its own square frame, so it isn't cropped.
+        orientation: Math.abs(width - height) / Math.max(width, height) <= 0.05
+          ? "square"
+          : width > height ? "landscape" : "portrait",
         width,
         height
       };

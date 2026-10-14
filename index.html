@@ -67,7 +67,9 @@
   }
 
   function tileWidth(photo) {
-    return photo.orientation === "landscape" ? 370 : 270;
+    if (photo.orientation === "landscape") return 370;
+    if (photo.orientation === "square") return 320;
+    return 270;
   }
 
   function tile(photo) {
@@ -157,7 +159,9 @@
 
     var sized = photos.map(function (photo, index) {
       var w = tileWidth(photo);
-      var imageH = photo.orientation === "landscape" ? w * 3 / 4 : w * 4 / 3;
+      var imageH = photo.orientation === "landscape" ? w * 3 / 4
+        : photo.orientation === "square" ? w
+        : w * 4 / 3;
       var metaH = 0;
       if (photo.tags && photo.tags.length) metaH += token("--line-height-18") + 2 * token("--space-50") + token("--space-100");
       return { photo: photo, index: index, w: w, h: imageH + (metaH ? metaGap + metaH : 0) };

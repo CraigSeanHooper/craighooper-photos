@@ -162,6 +162,7 @@
   --btn-radius: var(--radius-md);
   --tile-width-portrait: 270px;
   --tile-width-landscape: 370px;
+  --tile-width-square: var(--scale-base-320);
 }
 
 /* Dark mode follows the computer's setting, same as craighooper.xyz. */
@@ -356,6 +357,10 @@ a {
   width: var(--tile-width-landscape);
 }
 
+.tile--square {
+  width: var(--tile-width-square);
+}
+
 .tile__image {
   width: 100%;
   overflow: hidden;
@@ -364,6 +369,10 @@ a {
 
 .tile--portrait .tile__image {
   aspect-ratio: 3 / 4;
+}
+
+.tile--square .tile__image {
+  aspect-ratio: 1 / 1;
 }
 
 .tile--landscape .tile__image {
@@ -426,7 +435,8 @@ a {
   }
 
   .tile--portrait,
-  .tile--landscape {
+  .tile--landscape,
+  .tile--square {
     width: 100%;
   }
 }
