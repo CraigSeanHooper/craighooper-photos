@@ -110,17 +110,21 @@
   --space-1500: var(--scale-base-320);
   --space-1600: var(--scale-base-496);
 
+  --stroke-md: var(--scale-base-2);
+
   --surface-page: var(--colour-neutral-0);
   --surface-raised: var(--colour-neutral-5);
   --surface-accent: var(--colour-accent-yellow);
 
   --text-primary: var(--colour-neutral-90);
   --text-secondary: var(--colour-neutral-70);
+  --border-focus: var(--colour-neutral-90);
   --text-on-accent: var(--colour-neutral-90);
   --text-on-dark: var(--colour-neutral-0);
   --surface-link: var(--colour-link-blue);
   --surface-link-hover: var(--colour-link-blue-hover);
 
+  --radius-xs: var(--scale-base-4);
   --radius-sm: var(--scale-base-8);
   --radius-md: var(--scale-base-12);
   --radius-lg: var(--scale-base-16);
@@ -175,6 +179,7 @@
     --surface-avatar: var(--colour-neutral-90);
     --text-primary: var(--colour-neutral-10);
     --text-secondary: var(--colour-neutral-20);
+    --border-focus: var(--colour-neutral-10);
     --surface-link: var(--colour-link-blue-mid);
     --surface-link-hover: var(--colour-link-blue-mid-hover);
   }
@@ -438,7 +443,9 @@ a {
 /* The btn/link component (Figma, 11 November 2026): an underlined text link. */
 
 .load-more {
+  position: relative;
   border: 0;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   padding: 0;
   background: none;
@@ -451,13 +458,42 @@ a {
   display: none;
 }
 
+/* Hover (Foundations btn/link, State=Hover): the text darkens. */
+@media (hover: hover) {
+  .load-more:hover {
+    color: var(--text-primary);
+  }
+}
+
+/* Focus (State=Focus): a border/focus ring at stroke/md, space/50 outside the
+   text, 100% smoothed. Its inner corner is radius/xs plus the gap (radius/sm).
+   assets/squircle.js draws the smoothed ring shape; until it has, the plain
+   outline below stands in. */
+.load-more {
+  --ring-gap: var(--space-50);
+}
+
+.load-more:focus-visible {
+  outline: var(--stroke-md) solid var(--border-focus);
+  outline-offset: var(--ring-gap);
+}
+
+.load-more[data-ring-ready]:focus-visible {
+  outline: none;
+}
+
+.load-more[data-ring-ready]:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * (var(--ring-gap) + var(--stroke-md)));
+  background: var(--border-focus);
+  clip-path: var(--smooth-ring);
+  pointer-events: none;
+}
+
 /* --- Mobile grid ----------------------------------------------- */
 
 @media (max-width: 820px) {
-  .load-more {
-    width: 100%;
-  }
-
   .grid {
     flex-direction: column;
     align-items: stretch;
