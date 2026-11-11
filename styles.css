@@ -435,14 +435,16 @@ a {
 }
 
 /* --- Load more ------------------------------------------------- */
+/* The btn/link component (Figma, 11 November 2026): an underlined text link. */
 
 .load-more {
   border: 0;
   cursor: pointer;
-  padding: var(--btn-pad-y) var(--btn-pad-x);
-  border-radius: var(--btn-radius);
-  background: var(--surface-accent);
-  color: var(--text-on-accent);
+  padding: 0;
+  background: none;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-thickness: 8%;
 }
 
 .load-more[hidden] {
