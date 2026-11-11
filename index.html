@@ -21,11 +21,13 @@
   </a>
 </div>
 
-<a class="btn-action" data-cuelume-hover="toggle" href="mailto:craigseanhooper@gmail.com">Say hello</a>
+<!-- Hidden for now (Figma, 11 November 2026). Remove "hidden" to bring it back. -->
+<a class="btn-action" data-cuelume-hover="toggle" href="mailto:craigseanhooper@gmail.com" hidden>Say hello</a>
 
 <main class="page">
 
-  <section class="intro">
+  <!-- Hidden from view (Figma, 11 November 2026) but kept for screen readers and search. -->
+  <section class="intro visually-hidden">
     <h1 class="h1"><!--heading-->Photos<!--/heading--></h1>
     <p class="body-sm secondary"><!--intro-->A static site, built from plain markup and CSS with Claude. Photos and text live as files in a repository, edited through a CMS, and published to a CDN.<!--/intro--></p>
   </section>
@@ -57,7 +59,6 @@
   var button = document.getElementById("load-more");
   var canvas = document.getElementById("canvas");
   var plane = document.getElementById("plane");
-  var intro = document.querySelector(".intro");
   var photos = [];
 
   // Netlify resizes on request, so one uploaded file serves every size.
@@ -378,10 +379,9 @@
       root.classList.add("is-canvas");
       canvas.hidden = false;
       block = layoutBlock();
-      // First photo starts just below the intro, in line with it.
-      var introBox = intro.getBoundingClientRect();
+      // First photo starts at the page margin, top and left.
       cam.x = -token("--page-margin");
-      cam.y = -(introBox.bottom + token("--section-gap"));
+      cam.y = -token("--page-top");
       draw();
     } else {
       root.classList.remove("is-canvas");
