@@ -112,6 +112,8 @@
 
   --stroke-md: var(--scale-base-2);
 
+  --avatar-lg: var(--scale-base-48);
+
   --surface-page: var(--colour-neutral-0);
   --surface-raised: var(--colour-neutral-5);
   --surface-accent: var(--colour-accent-yellow);
@@ -623,24 +625,27 @@ a {
 }
 
 /* --- Avatar ---------------------------------------------------- */
-/* Wrapper holds the position, the button holds the spin, so the two
-   never fight over one element. Matches craighooper.xyz. */
+/* Foundations avatar/static, Size=Large on desktop and mobile (as the gallery's
+   Figma frames use it): an avatar/lg drawing in a circle with space/50 padding.
+   Wrapper holds the position, the button holds the spin, so the two never
+   fight over one element. A full circle, so no corner smoothing. */
 
 .avatar-wrap {
+  --avatar-circle: calc(var(--avatar-lg) + 2 * var(--space-50));
   position: absolute;
   top: var(--space-100);
   left: var(--space-100);
-  width: 56px;
-  height: 56px;
+  width: var(--avatar-circle);
+  height: var(--avatar-circle);
   z-index: 3;
 }
 
 .avatar-btn {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  padding: 0;
+  width: var(--avatar-circle);
+  height: var(--avatar-circle);
+  padding: var(--space-50);
   border: 0;
   border-radius: var(--radius-full);
   background: var(--surface-avatar);
@@ -649,9 +654,16 @@ a {
 
 .avatar-btn img {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
   object-fit: cover;
+}
+
+/* Focus (State=Focus): a border/focus ring at stroke/md on the circle's own
+   edge, the same size as the circle, no gap. */
+.avatar-btn:focus-visible {
+  outline: var(--stroke-md) solid var(--border-focus);
+  outline-offset: calc(-1 * var(--stroke-md));
 }
 
 @media (hover: hover) and (min-width: 821px) {
